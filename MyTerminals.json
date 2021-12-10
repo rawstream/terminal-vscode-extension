@@ -1,0 +1,17 @@
+{
+    "terminals": [
+        {
+            "name": "Git",
+            "icon": "git-merge",
+            "color": "terminal.ansiBlue",
+            "message": "Use for git commands"
+        },
+        {
+            "name": "Dev Server",
+            "icon": "server",
+            "color": "terminal.ansiGreen",
+            "message": "run 'npm run serve' to start development server",
+            "focus": true
+        }
+    ]
+}

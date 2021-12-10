@@ -10,14 +10,18 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:terminal-vscode-extension.helloWorld"
+		"onStartupFinished"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "terminal-vscode-extension.helloWorld",
-				"title": "Hello World"
+				"command": "terminal-vscode-extension.openTerminals",
+				"title": "MyTerminals: Open"
+			},
+			{
+				"command": "terminal-vscode-extension.killTerminals",
+				"title": "MyTerminals: Kill"
 			}
 		]
 	},
