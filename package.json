@@ -16,6 +16,10 @@
 	"contributes": {
 		"commands": [
 			{
+				"command": "terminal-vscode-extension.initSettingsFile",
+				"title": "MyTerminals: Init"
+			},
+			{
 				"command": "terminal-vscode-extension.openTerminals",
 				"title": "MyTerminals: Open"
 			},
