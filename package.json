@@ -24,6 +24,10 @@
 				"title": "MyTerminals: Open"
 			},
 			{
+				"command": "terminal-vscode-extension.openSelected",
+				"title": "MyTerminals: Select"
+			},
+			{
 				"command": "terminal-vscode-extension.killTerminals",
 				"title": "MyTerminals: Kill"
 			}

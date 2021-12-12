@@ -1,7 +1,11 @@
 const { TextEncoder } = require('util')
 const vscode = require('vscode')
+const defaultSettings = require('./MyTerminals.json')
 
-// Read settings file and parse. Returns settings object or null.
+/**
+ * Read and parse settings file. Returns settings object or null.
+ * @returns Object || null
+ */
 async function getSettings() {
 	const settingsFile = await vscode.workspace.findFiles('.vscode/**/MyTerminals.json', 'node_modules', 1)
 	.then(files => files?.[0] || null)
@@ -9,8 +13,8 @@ async function getSettings() {
 		return null
 	}
 
-	return vscode.workspace.fs.readFile(settingsFile).then(buffer => {
-		const contents = buffer.toString()
+	return vscode.workspace.fs.readFile(settingsFile).then(data => {
+		const contents = data.toString()
 		try {
 			return JSON.parse(contents)
 		} catch (error) {
@@ -20,26 +24,8 @@ async function getSettings() {
 	})
 }
 
-// Validate the parsed settings object
-async function validateSettings(settings) {	
-	if (!settings) {
-		vscode.window.showWarningMessage('Could not find MyTerminals.json file.', 'Create now', 'Maybe later').then(answer => {
-			if (answer === 'Create now') {
-				init()
-			}
-		})
-		return false
-	}
-	if(!settings.terminals?.length) {
-		vscode.window.showErrorMessage('No terminals specified in MyTerminals.json file.')
-		return false
-	}
-	return true
-}
-
 // Create new settings file
-function init() {
-	const defaultSettings = require('./MyTerminals.json')
+function createSettingsFile() {
 	const rootPath = vscode.workspace.workspaceFolders?.[0]?.uri?.path
 	if (!rootPath) {
 		vscode.window.showErrorMessage('Please open a workspace.')		
@@ -51,6 +37,65 @@ function init() {
 	})
 }
 
+/**
+ * Validate settings object
+ * @param {Object} settings 
+ * @returns Boolean
+ */
+function validateSettings(settings) {	
+	if (!settings) {
+		vscode.window.showWarningMessage('Could not find MyTerminals.json file.', 'Create now', 'Maybe later').then(answer => {
+			if (answer === 'Create now') {
+				createSettingsFile()
+			}
+		})
+		return false
+	}
+	if(!settings.terminals?.length) {
+		vscode.window.showErrorMessage('No terminals specified in MyTerminals.json file.')
+		return false
+	}
+	return true
+}
+
+/**
+ * Check if a workspace is open
+ * @returns Boolean
+ */
+function workspaceIsOpen() {
+	if (!vscode.workspace.workspaceFolders?.length) {
+		vscode.window.showErrorMessage('Please open a workspace.')
+		return false
+	}
+	return true
+}
+
+/**
+ * Open the passed terminals
+ * @param {Array} terminals 
+ */
+function openTerminals(terminals) {
+	terminals.forEach(t => {
+		const {name, icon, color, message} = t
+		vscode.window.createTerminal({
+			name,
+			iconPath: new vscode.ThemeIcon(icon),
+			color: new vscode.ThemeColor(color),
+			message
+		})
+	})	
+}
+
+/**
+ * Focus on specified terminal. Default: first terminal specified.
+ * @param {Array} terminals 
+ */
+function focus(terminals) {
+	const terminalWithFocus = terminals.findIndex(t => t.focus === true)			
+	vscode.window.terminals[terminalWithFocus > -1 ? terminalWithFocus : 0].show()
+}
+
+
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -61,41 +106,55 @@ async function activate(context) {
 		validateSettings(settings)
 	}
 	
+	// Open all defined terminals
 	const openTerminalsCommand = vscode.commands.registerCommand('terminal-vscode-extension.openTerminals', async () => {
-		if (!vscode.workspace.workspaceFolders?.length) {
-			return vscode.window.showErrorMessage('Please open a workspace.')
+		if (!workspaceIsOpen()) {
+			return
 		}
 		const settings = await getSettings()
 		const hasValidSettings = validateSettings(settings)
 		if (!hasValidSettings) {
 			return
-		}		
-
-		settings.terminals.forEach(t => {
-			const {name, icon, color, message} = t
-			vscode.window.createTerminal({
-				name,
-				iconPath: new vscode.ThemeIcon(icon),
-				color: new vscode.ThemeColor(color),
-				message
-			})
-		})
-		
-		// Focus on terminal
-		const terminalWithFocus = settings.terminals.findIndex(t => t.focus === true)			
-		vscode.window.terminals[terminalWithFocus > -1 ? terminalWithFocus : 0].show()
+		}
+		const terminals = settings.terminals
+		openTerminals(terminals)	
+		if (!settings.silence)	{
+			focus(terminals)
+		}
 	})
 
+	// Kill all open terminals
 	const killTerminalsCommand = vscode.commands.registerCommand('terminal-vscode-extension.killTerminals', () => {
 		vscode.window.terminals.forEach(terminal => {
 			terminal.dispose()
 		})
 	})
 
+	// Create settings file
 	const initSettingsFileCommand = vscode.commands.registerCommand('terminal-vscode-extension.initSettingsFile', () => {
-		init()
+		createSettingsFile()
 	})
-	context.subscriptions.push(openTerminalsCommand, killTerminalsCommand, initSettingsFileCommand)		
+
+	// Select terminals to open
+	const openSelectedCommand = vscode.commands.registerCommand('terminal-vscode-extension.openSelected', async () => {
+		if (!workspaceIsOpen()) {
+			return
+		}
+		const settings = await getSettings()
+		const hasValidSettings = validateSettings(settings)
+		if (!hasValidSettings) {
+			return
+		}
+		const quickPickList = settings.terminals.map(t => t.name)	
+		vscode.window.showQuickPick(quickPickList, {canPickMany: true}).then(list => {
+			const terminals = settings.terminals.filter(t => list.includes(t.name))
+			openTerminals(terminals)
+			if (!settings.silence)	{
+				focus(terminals)
+			}
+		})
+	})
+	context.subscriptions.push(openTerminalsCommand, killTerminalsCommand, initSettingsFileCommand, openSelectedCommand)		
 }
 
 function deactivate() {}
