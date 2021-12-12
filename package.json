@@ -1,7 +1,7 @@
 {
 	"name": "terminal-vscode-extension",
-	"displayName": "terminal-vscode-extension",
-	"description": "",
+	"displayName": "MyTerminals",
+	"description": "Open multiple pre-configured terminals.",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.63.0"
