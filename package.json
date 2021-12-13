@@ -10,7 +10,11 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onStartupFinished"
+		"workspaceContains:.vscode/**/MyTerminals.json",
+		"onCommand:terminal-vscode-extension.initSettingsFile",
+		"onCommand:terminal-vscode-extension.openTerminals",
+		"onCommand:terminal-vscode-extension.openSelected",
+		"onCommand:terminal-vscode-extension.killTerminals"
 	],
 	"main": "./extension.js",
 	"contributes": {
