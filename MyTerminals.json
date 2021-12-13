@@ -1,10 +1,13 @@
 {
+    "silence": false,
     "terminals": [
         {
             "name": "Git",
             "icon": "git-merge",
             "color": "terminal.ansiBlue",
-            "message": "Use for git commands"
+            "commands": [
+                "git --version"
+            ]
         },
         {
             "name": "Dev Server",

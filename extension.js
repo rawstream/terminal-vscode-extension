@@ -76,12 +76,17 @@ function workspaceIsOpen() {
  */
 function openTerminals(terminals) {
 	terminals.forEach(t => {
-		const {name, icon, color, message} = t
-		vscode.window.createTerminal({
+		const {name, icon, color, message, commands} = t
+		const currentTerminal = vscode.window.createTerminal({
 			name,
 			iconPath: new vscode.ThemeIcon(icon),
 			color: new vscode.ThemeColor(color),
 			message
+		})
+		commands?.forEach(c => {
+			if (typeof c === 'string') {
+				currentTerminal.sendText(c)
+			} 
 		})
 	})	
 }
@@ -101,11 +106,6 @@ function focus(terminals) {
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-	if (vscode.workspace.workspaceFolders?.length) {
-		const settings = await getSettings()
-		validateSettings(settings)
-	}
-	
 	// Open all defined terminals
 	const openTerminalsCommand = vscode.commands.registerCommand('terminal-vscode-extension.openTerminals', async () => {
 		if (!workspaceIsOpen()) {
