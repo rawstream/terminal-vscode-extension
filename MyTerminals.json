@@ -4,17 +4,16 @@
         {
             "name": "Git",
             "icon": "git-merge",
-            "color": "terminal.ansiBlue",
-            "commands": [
-                "git --version"
-            ]
+            "color": "terminal.ansiBlue"
         },
         {
             "name": "Dev Server",
             "icon": "server",
             "color": "terminal.ansiGreen",
             "message": "run 'npm run serve' to start development server",
-            "focus": true
+            "focus": true,
+            "path": "backend/",
+            "commands": ["npm run serve"]
         }
     ]
 }
