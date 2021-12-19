@@ -1,6 +1,7 @@
 const { TextEncoder } = require('util')
 const vscode = require('vscode')
 const defaultSettings = require('./MyTerminals.json')
+let SETTINGS = null
 
 /**
  * Read and parse settings file. Returns settings object or null.
@@ -16,9 +17,11 @@ async function getSettings() {
 	return vscode.workspace.fs.readFile(settingsFile).then(data => {
 		const contents = data.toString()
 		try {
-			return JSON.parse(contents)
+			SETTINGS = JSON.parse(contents) || null
+			return SETTINGS
 		} catch (error) {
 			vscode.window.showErrorMessage('Invalid MyTerminals.json file.')
+			SETTINGS = null
 			return null
 		}
 	})
@@ -51,7 +54,7 @@ function validateSettings(settings) {
 		})
 		return false
 	}
-	if(!settings.terminals?.length) {
+	else if(!settings.terminals?.length) {
 		vscode.window.showErrorMessage('No terminals specified in MyTerminals.json file.')
 		return false
 	}
@@ -75,13 +78,16 @@ function workspaceIsOpen() {
  * @param {Array} terminals 
  */
 function openTerminals(terminals) {
+	const workspaceUri = vscode.workspace.workspaceFolders[0].uri
 	terminals.forEach(t => {
-		const {name, icon, color, message, commands} = t
+		const {name, icon, color, message, commands, path } = t
+		const cwd = path ? vscode.Uri.joinPath(workspaceUri, path) : null
 		const currentTerminal = vscode.window.createTerminal({
 			name,
 			iconPath: new vscode.ThemeIcon(icon),
 			color: new vscode.ThemeColor(color),
-			message
+			message,
+			cwd	
 		})
 		commands?.forEach(c => {
 			if (typeof c === 'string') {
@@ -100,25 +106,58 @@ function focus(terminals) {
 	vscode.window.terminals[terminalWithFocus > -1 ? terminalWithFocus : 0].show()
 }
 
+/**
+ * Create file system watcher for settings file
+ */
+function watchSettingsFile() {
+	if (!workspaceIsOpen()) {
+		return
+	}
+	const workspaceFolder = vscode.workspace.workspaceFolders[0]
+	const pattern = new vscode.RelativePattern(workspaceFolder, '.vscode/MyTerminals.json')
+	const watcher = vscode.workspace.createFileSystemWatcher(pattern)
+	let handleEvents = true
+	const handler = async () => {
+		if(handleEvents) {
+			handleEvents = false
+			const settings = await getSettings()
+			const hasValidSettings = validateSettings(settings)
+			if (hasValidSettings) {
+				SETTINGS = settings
+			}
+			setTimeout(() => {
+				handleEvents = true
+			}, 2000)
+		}
+	}
+	watcher.onDidCreate(handler)
+	watcher.onDidChange(handler)
+	watcher.onDidDelete(() => {
+		SETTINGS = null
+	})
+	
+}
 
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
+	watchSettingsFile()
+	SETTINGS = await getSettings()
+	
 	// Open all defined terminals
 	const openTerminalsCommand = vscode.commands.registerCommand('terminal-vscode-extension.openTerminals', async () => {
 		if (!workspaceIsOpen()) {
 			return
 		}
-		const settings = await getSettings()
-		const hasValidSettings = validateSettings(settings)
+		const hasValidSettings = validateSettings(SETTINGS)
 		if (!hasValidSettings) {
 			return
 		}
-		const terminals = settings.terminals
+		const terminals = SETTINGS.terminals
 		openTerminals(terminals)	
-		if (!settings.silence)	{
+		if (!SETTINGS.silence)	{
 			focus(terminals)
 		}
 	})
@@ -140,16 +179,15 @@ async function activate(context) {
 		if (!workspaceIsOpen()) {
 			return
 		}
-		const settings = await getSettings()
-		const hasValidSettings = validateSettings(settings)
+		const hasValidSettings = validateSettings(SETTINGS)
 		if (!hasValidSettings) {
 			return
 		}
-		const quickPickList = settings.terminals.map(t => t.name)	
+		const quickPickList = SETTINGS.terminals.map(t => t.name)	
 		vscode.window.showQuickPick(quickPickList, {canPickMany: true}).then(list => {
-			const terminals = settings.terminals.filter(t => list.includes(t.name))
+			const terminals = SETTINGS.terminals.filter(t => list.includes(t.name))
 			openTerminals(terminals)
-			if (!settings.silence)	{
+			if (!SETTINGS.silence)	{
 				focus(terminals)
 			}
 		})
