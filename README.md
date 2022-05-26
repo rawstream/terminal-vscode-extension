@@ -7,7 +7,7 @@ Run all specified terminals at once or select specific terminals.
 
 Available settings:
 
-\!\[Example settings\]\(images/MyTerminals-example-settings.PNG\)
+![Example settings](/images/MyTerminals-example-settings.png)
 
 ## Release Notes
 
@@ -15,5 +15,4 @@ Available settings:
 
 Initial release of MyTerminals
 
-
------------------------------------------------------------------------------------------------------------
+---
