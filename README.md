@@ -29,7 +29,7 @@ Choose a terminal configuration to open.
 ## Settings:
 All configuration options shwon below are optional.
 
-```json
+```javascript
 // .vscode/MyTerminals.json
 {
   "silence": false, // Don't focus on the terminal panel if set to true
