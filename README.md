@@ -54,6 +54,8 @@ All configuration options shwon below are optional.
 
 
 ## Release Notes
+### 1.2.1
+More neutral defaults when running MyTerminals: Init
 ### 1.2.0
 Fixed: Configured icons and colors are correctly shown for VSCode v1.70 and above.
 Added option for custom shellPath.
