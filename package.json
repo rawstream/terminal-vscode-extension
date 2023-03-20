@@ -8,8 +8,11 @@
     "email": "info@rawstream.se",
     "url": "https://rawstream.se"
   },
-  "version": "1.0.0",
-  "keywords": ["terminal", "management"],
+  "version": "1.1.0",
+  "keywords": [
+    "terminal",
+    "management"
+  ],
   "icon": "images/terminal_icon.png",
   "license": "MIT",
   "repository": {
