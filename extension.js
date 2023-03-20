@@ -9,7 +9,7 @@ let SETTINGS = null
  */
 async function getSettings() {
 	const settingsFile = await vscode.workspace.findFiles('.vscode/**/MyTerminals.json', 'node_modules', 1)
-	.then(files => files?.[0] || null)
+		.then(files => files?.[0] || null)
 	if (!settingsFile) {
 		return null
 	}
@@ -31,7 +31,7 @@ async function getSettings() {
 function createSettingsFile() {
 	const rootPath = vscode.workspace.workspaceFolders?.[0]?.uri?.path
 	if (!rootPath) {
-		vscode.window.showErrorMessage('Please open a workspace.')		
+		vscode.window.showErrorMessage('Please open a workspace.')
 	}
 	const uri = vscode.Uri.file(`${rootPath}/.vscode/MyTerminals.json`)
 	const content = new TextEncoder('utf8').encode(JSON.stringify(defaultSettings, null, 2))
@@ -45,7 +45,7 @@ function createSettingsFile() {
  * @param {Object} settings 
  * @returns Boolean
  */
-function validateSettings(settings) {	
+function validateSettings(settings) {
 	if (!settings) {
 		vscode.window.showWarningMessage('Could not find MyTerminals.json file.', 'Create now', 'Maybe later').then(answer => {
 			if (answer === 'Create now') {
@@ -54,7 +54,7 @@ function validateSettings(settings) {
 		})
 		return false
 	}
-	else if(!settings.terminals?.length) {
+	else if (!settings.terminals?.length) {
 		vscode.window.showErrorMessage('No terminals specified in MyTerminals.json file.')
 		return false
 	}
@@ -80,21 +80,23 @@ function workspaceIsOpen() {
 function openTerminals(terminals) {
 	const workspaceUri = vscode.workspace.workspaceFolders[0].uri
 	terminals.forEach(t => {
-		const {name, icon, color, message, commands, path } = t
+		const { name, icon, color, message, commands, path, shellPath } = t
 		const cwd = path ? vscode.Uri.joinPath(workspaceUri, path) : null
 		const currentTerminal = vscode.window.createTerminal({
 			name,
 			iconPath: new vscode.ThemeIcon(icon),
 			color: new vscode.ThemeColor(color),
 			message,
-			cwd	
+			cwd,
+			shellPath: shellPath || vscode.env.shell
 		})
+
 		commands?.forEach(c => {
 			if (typeof c === 'string') {
 				currentTerminal.sendText(c)
-			} 
+			}
 		})
-	})	
+	})
 }
 
 /**
@@ -102,7 +104,7 @@ function openTerminals(terminals) {
  * @param {Array} terminals 
  */
 function focus(terminals) {
-	const terminalWithFocus = terminals.findIndex(t => t.focus === true)			
+	const terminalWithFocus = terminals.findIndex(t => t.focus === true)
 	vscode.window.terminals[terminalWithFocus > -1 ? terminalWithFocus : 0].show()
 }
 
@@ -118,7 +120,7 @@ function watchSettingsFile() {
 	const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 	let handleEvents = true
 	const handler = async () => {
-		if(handleEvents) {
+		if (handleEvents) {
 			handleEvents = false
 			const settings = await getSettings()
 			const hasValidSettings = validateSettings(settings)
@@ -135,7 +137,7 @@ function watchSettingsFile() {
 	watcher.onDidDelete(() => {
 		SETTINGS = null
 	})
-	
+
 }
 
 
@@ -145,7 +147,7 @@ function watchSettingsFile() {
 async function activate(context) {
 	watchSettingsFile()
 	SETTINGS = await getSettings()
-	
+
 	// Open all defined terminals
 	const openTerminalsCommand = vscode.commands.registerCommand('terminal-vscode-extension.openTerminals', async () => {
 		if (!workspaceIsOpen()) {
@@ -156,8 +158,8 @@ async function activate(context) {
 			return
 		}
 		const terminals = SETTINGS.terminals
-		openTerminals(terminals)	
-		if (!SETTINGS.silence)	{
+		openTerminals(terminals)
+		if (!SETTINGS.silence) {
 			focus(terminals)
 		}
 	})
@@ -183,19 +185,19 @@ async function activate(context) {
 		if (!hasValidSettings) {
 			return
 		}
-		const quickPickList = SETTINGS.terminals.map(t => t.name)	
-		vscode.window.showQuickPick(quickPickList, {canPickMany: true}).then(list => {
+		const quickPickList = SETTINGS.terminals.map(t => t.name)
+		vscode.window.showQuickPick(quickPickList, { canPickMany: true }).then(list => {
 			const terminals = SETTINGS.terminals.filter(t => list.includes(t.name))
 			openTerminals(terminals)
-			if (!SETTINGS.silence)	{
+			if (!SETTINGS.silence) {
 				focus(terminals)
 			}
 		})
 	})
-	context.subscriptions.push(openTerminalsCommand, killTerminalsCommand, initSettingsFileCommand, openSelectedCommand)		
+	context.subscriptions.push(openTerminalsCommand, killTerminalsCommand, initSettingsFileCommand, openSelectedCommand)
 }
 
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
 	activate,
