@@ -2,18 +2,10 @@
     "silence": false,
     "terminals": [
         {
-            "name": "Git",
-            "icon": "git-merge",
-            "color": "terminal.ansiBlue"
-        },
-        {
-            "name": "Dev Server",
-            "icon": "server",
-            "color": "terminal.ansiGreen",
-            "message": "run 'npm run serve' to start development server",
-            "focus": true,
-            "path": "backend/",
-            "commands": ["npm run serve"]
+            "name": "MyTerminals",
+            "icon": "star-empty",
+            "color": "terminal.ansiYellow",
+            "message": "You are using MyTerminals"
         }
     ]
 }
