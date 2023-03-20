@@ -1,16 +1,20 @@
 {
   "name": "terminal-vscode-extension",
+  "publisher": "Rawstream",
   "displayName": "MyTerminals",
   "description": "Open multiple pre-configured terminals.",
   "author": {
     "name": "Rogier Wiertz",
-    "email": "info@rogierwiertz.com",
-    "url": "https://rogierwiertz.com"
+    "email": "info@rawstream.se",
+    "url": "https://rawstream.se"
   },
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "keywords": ["terminal", "management"],
+  "icon": "images/terminal_icon.png",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rogierwiertz/terminal-vscode-extension.git"
+    "url": "https://github.com/rawstream/terminal-vscode-extension.git"
   },
   "engines": {
     "vscode": "^1.63.0"
