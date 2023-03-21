@@ -27,9 +27,9 @@ Choose a terminal configuration to open.
  
 
 ## Settings:
-All configuration options shwon below are optional.
+All configuration options shown below are optional.
 
-```javascript
+```jsonc
 // .vscode/MyTerminals.json
 {
   "silence": false, // Don't focus on the terminal panel if set to true

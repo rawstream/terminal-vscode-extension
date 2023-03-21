@@ -11,8 +11,14 @@
   "version": "1.2.1",
   "keywords": [
     "terminal",
-    "management"
+    "management",
+    "setup",
+    "configuration",
+    "launcher"
   ],
+  "bugs": {
+    "url": "https://github.com/rawstream/terminal-vscode-extension/issues"
+  },
   "icon": "images/terminal_icon.png",
   "license": "MIT",
   "repository": {
