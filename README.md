@@ -54,6 +54,8 @@ All configuration options shown below are optional.
 
 
 ## Release Notes
+### 1.2.2
+Fixed typo in readme
 ### 1.2.1
 More neutral defaults when running MyTerminals: Init
 ### 1.2.0
